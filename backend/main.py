@@ -5,7 +5,7 @@
 @FileName: main.py
 @desc: 主程序入口文件
 """
-import re
+import re,requests
 import os
 import random
 import shutil
@@ -13,6 +13,7 @@ from collections import Counter
 import unicodedata
 from threading import Thread
 from pathlib import Path
+from urllib import request
 import cv2
 from Levenshtein import ratio
 from PIL import Image
@@ -33,6 +34,8 @@ import threading
 import platform
 import multiprocessing
 import time
+import json
+import wget
 
 
 class SubtitleDetect:
@@ -348,13 +351,14 @@ class SubtitleExtractor:
         # 定义videoSubFinder所在路径
         path_vsf = os.path.join(config.BASE_DIR, '', 'subfinder', 'VideoSubFinderWXW.exe')
         # ：图像上半部分所占百分比，取值【0-1】
-        top_end = 1 - self.sub_area[0] / self.frame_height
+        #894 1052 152 1264
+        top_end = 1 - self.sub_area[0]
         # bottom_end：图像下半部分所占百分比，取值【0-1】
-        bottom_end = 1 - self.sub_area[1] / self.frame_height
+        bottom_end = 1 - self.sub_area[1]
         # left_end：图像左半部分所占百分比，取值【0-1】
-        left_end = self.sub_area[2] / self.frame_width
+        left_end = self.sub_area[2]
         # re：图像右半部分所占百分比，取值【0-1】
-        right_end = self.sub_area[3] / self.frame_width
+        right_end = self.sub_area[3]
         cpu_count = max(int(multiprocessing.cpu_count() * 2 / 3), 1)
         if cpu_count < 4:
             cpu_count = max(multiprocessing.cpu_count() - 1, 1)
@@ -977,20 +981,49 @@ class SubtitleExtractor:
         # 开启线程负责更新OCR进度
         Thread(target=get_ocr_progress, daemon=True).start()
         return process
-
-
+def get_videos(json_path):
+    pass
+def get_real_url(url):
+    headers={
+        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"
+    }
+    i=3
+    while True:
+        try:
+            res = requests.head(url,headers=headers,timeout=5)
+            return res.headers['Location']
+        except:
+            print("真实地址获取失败："+url)
+            i-=1
+            if i==0:
+                return None
+def download_video(video):
+    video_path = "/content/"+video['name'+".mp4"]
+    real_url = get_real_url(video['url'])
+    if real_url!=None:
+        i=3
+        while True:
+            try:
+                wget.download(real_url,video_path)
+                return video_path
+            except:
+                print("下载失败："+real_url)
+                i-=1
+                if i==0:
+                    return None
+def dwonload_srt(srt_path):
+    pass
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
-    # 提示用户输入视频路径
-    video_path = input(f"{config.interface_config['Main']['InputVideo']}").strip()
-    # 提示用户输入字幕区域
-    try:
-        y_min, y_max, x_min, x_max = map(int, input(
-            f"{config.interface_config['Main']['ChooseSubArea']} (ymin ymax xmin xmax)：").split())
-        subtitle_area = (y_min, y_max, x_min, x_max)
-    except ValueError as e:
-        subtitle_area = None
-    # 新建字幕提取对象
-    se = SubtitleExtractor(video_path, subtitle_area)
-    # 开始提取字幕
-    se.run()
+    videos = get_videos("/content/videos.json")
+    subtitle_area = (0.2, 0.9, 0, 1)
+    for video in videos:
+        video_path = download_video(video)
+        # 新建字幕提取对象
+        se = SubtitleExtractor(video_path, subtitle_area)
+        # 开始提取字幕
+        se.run()
+        #下载字幕
+        srt_path = video_path[:-3]+"srt"
+        #TODO线程池下载
+        dwonload_srt(srt_path)
