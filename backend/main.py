@@ -9,6 +9,7 @@ import re,requests
 import os
 import random
 import shutil
+from google.colab import files
 from collections import Counter
 import unicodedata
 from threading import Thread
@@ -1012,7 +1013,7 @@ def download_video(video):
                 if i==0:
                     return None
 def dwonload_srt(srt_path):
-    pass
+    files.download(srt_path)
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
