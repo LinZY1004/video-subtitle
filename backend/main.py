@@ -1036,9 +1036,8 @@ if __name__ == '__main__':
         se.run()
         #下载字幕
         srt_path = video_path[:-3]+"srt"
-        #TODO线程池下载
+        #线程池下载
         download_task.append(download_pool.submit(dwonload_srt,srt_path))
-        dwonload_srt(srt_path)
     for future in as_completed(download_task):
         pass
     print("字幕识别并下载完成！")
