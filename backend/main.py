@@ -6,6 +6,7 @@
 @desc: 主程序入口文件
 """
 import re,requests
+from concurrent.futures import ThreadPoolExecutor,as_completed
 import os
 import random
 import shutil
@@ -983,7 +984,14 @@ class SubtitleExtractor:
         Thread(target=get_ocr_progress, daemon=True).start()
         return process
 def get_videos(json_path):
-    pass
+    video_list=[]
+    with open(json_path,'a+',encoding='utf8')as fp:
+        fp.seek(0)
+        try:
+            video_list = json.load(fp)
+        except:
+            print("获取video json文件失败")
+    return video_list
 def get_real_url(url):
     headers={
         "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"
@@ -1015,6 +1023,8 @@ def download_video(video):
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
+    download_task = []
+    download_pool=ThreadPoolExecutor(max_workers=1)
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
     subtitle_area = (0.2, 0.9, 0, 1)
@@ -1027,4 +1037,8 @@ if __name__ == '__main__':
         #下载字幕
         srt_path = video_path[:-3]+"srt"
         #TODO线程池下载
+        download_task.append(download_pool.submit(dwonload_srt,srt_path))
         dwonload_srt(srt_path)
+    for future in as_completed(download_task):
+        pass
+    print("字幕识别并下载完成！")
