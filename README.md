@@ -1,9 +1,7 @@
 简体中文 | [English](README_en.md)
-
 ## 在线运行
 
-- 使用**Google Colab Notebook**(免费GPU): <a href="https://colab.research.google.com/github/YaoFANGUK/video-subtitle-extractor/blob/main/google_colab.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
-
+- 使用**Google Colab Notebook**(免费GPU): <a href="https://colab.research.google.com/github/LinZY1004/video-subtitle/blob/main/google_colab.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 ## 项目简介
 
 ![License](https://img.shields.io/badge/License-Apache%202-red.svg)
@@ -81,7 +79,7 @@ Video-subtitle-extractor (vse) 是一款将视频中的硬字幕提取为外挂�
 
 ## 在线运行
 
-- 使用**Google Colab Notebook**(免费GPU): <a href="https://colab.research.google.com/github/YaoFANGUK/video-subtitle-extractor/blob/main/google_colab.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+- 使用**Google Colab Notebook**(免费GPU): <a href="https://colab.research.google.com/github/LinZY1004/video-subtitle/blob/main/google_colab.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 > PS: Google Colab只能运行CLI版本
 
