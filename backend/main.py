@@ -5,6 +5,7 @@
 @FileName: main.py
 @desc: 主程序入口文件
 """
+import traceback
 import re,requests
 from concurrent.futures import ThreadPoolExecutor,as_completed
 import os
@@ -83,6 +84,11 @@ class SubtitleExtractor:
         # 视频尺寸
         self.frame_height = int(self.video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.frame_width = int(self.video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        
+        self.s_ymin = self.frame_width*self.sub_area[0]
+        self.s_ymax = self.frame_width*self.sub_area[1]
+        self.s_xmin = self.frame_height*self.sub_area[2]
+        self.s_xmax = self.frame_height*self.sub_area[3]
         # 用户未指定字幕区域时，默认字幕出现的区域
         self.default_subtitle_area = config.DEFAULT_SUBTITLE_AREA
         # 提取的视频帧储存目录
@@ -253,7 +259,7 @@ class SubtitleExtractor:
             dt_boxes, elapse = self.sub_detector.detect_subtitle(frame)
             has_subtitle = False
             if self.sub_area is not None:
-                s_ymin, s_ymax, s_xmin, s_xmax = self.sub_area
+                s_ymin, s_ymax, s_xmin, s_xmax = (self.s_ymin, self.s_ymax, self.s_xmin, self.s_xmax)
                 for box in dt_boxes:
                     xmin, xmax, ymin, ymax = box[0], box[1], box[2], box[3]
                     if (s_xmin <= xmin).any() and (xmax <= s_xmax).any() and (s_ymin <= ymin).any() and (ymax <= s_ymax).any():
@@ -559,10 +565,10 @@ class SubtitleExtractor:
         else:
             subtitle_frame_index_list = []
             index = 0
-            s_ymin = self.sub_area[0]
-            s_ymax = self.sub_area[1]
-            s_xmin = self.sub_area[2]
-            s_xmax = self.sub_area[3]
+            s_ymin = self.s_ymin
+            s_ymax = self.s_ymax
+            s_xmin = self.s_xmin
+            s_xmax = self.s_xmax
             cap = cv2.VideoCapture(self.video_path)
             success, frame = cap.read()
             if success:
@@ -859,10 +865,10 @@ class SubtitleExtractor:
         area_text = []
         for content, coordinate in zip(text, coordinates):
             if self.sub_area is not None:
-                s_ymin = self.sub_area[0]
-                s_ymax = self.sub_area[1]
-                s_xmin = self.sub_area[2]
-                s_xmax = self.sub_area[3]
+                s_ymin = self.s_ymin
+                s_ymax = self.s_ymax
+                s_xmin = self.s_xmin
+                s_xmax = self.s_xmax
                 xmin = coordinate[0]
                 xmax = coordinate[1]
                 ymin = coordinate[2]
@@ -971,7 +977,7 @@ class SubtitleExtractor:
 
         process, task_queue, progress_queue = subtitle_ocr.async_start(self.video_path,
                                                                        self.raw_subtitle_path,
-                                                                       self.sub_area,
+                                                                       (self.s_ymin, self.s_ymax, self.s_xmin, self.s_xmax),
                                                                        options={'REC_CHAR_TYPE': config.REC_CHAR_TYPE,
                                                                                 'DROP_SCORE': config.DROP_SCORE,
                                                                                 'SUB_AREA_DEVIATION_RATE': config.SUB_AREA_DEVIATION_RATE,
@@ -990,6 +996,7 @@ def get_videos(json_path):
         try:
             video_list = json.load(fp)
         except:
+            traceback.print_exc()
             print("获取video json文件失败")
     return video_list
 def get_real_url(url):
@@ -1023,8 +1030,6 @@ def download_video(video):
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
-    download_task = []
-    download_pool=ThreadPoolExecutor(max_workers=1)
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
     subtitle_area = (0.2, 0.9, 0, 1)
@@ -1034,10 +1039,3 @@ if __name__ == '__main__':
         se = SubtitleExtractor(video_path, subtitle_area)
         # 开始提取字幕
         se.run()
-        #下载字幕
-        srt_path = video_path[:-3]+"srt"
-        #线程池下载
-        download_task.append(download_pool.submit(dwonload_srt,srt_path))
-    for future in as_completed(download_task):
-        pass
-    print("字幕识别并下载完成！")
