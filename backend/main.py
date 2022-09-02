@@ -1015,7 +1015,7 @@ def get_real_url(url):
                 return None
 def download_video(video):
     video_path = "/content/"+video['name']+".mp4"
-    real_url = get_real_url(video['url'])
+    real_url = get_real_url(video['sd_url'])
     if real_url!=None:
         i=3
         while True:
