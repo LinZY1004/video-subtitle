@@ -1032,7 +1032,7 @@ def dwonload_srt(srt_path):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
-    subtitle_area = (0.1, 0.9, 0.1, 0.9)
+    subtitle_area = (0, 1, 0, 1)
     for video in videos:
         video_path = download_video(video)
         # 新建字幕提取对象
