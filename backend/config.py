@@ -30,7 +30,7 @@ if not os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), '
         f.write('[DEFAULT]\n')
         f.write('Interface = 简体中文\n')
         f.write('Language = ch\n')
-        f.write('Mode = accurate')
+        f.write('Mode = fast')
 settings_config.read(MODE_CONFIG_PATH, encoding='utf-8')
 
 # 读取interface下的语言配置,e.g. ch.ini
