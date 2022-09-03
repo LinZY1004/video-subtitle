@@ -85,10 +85,10 @@ class SubtitleExtractor:
         self.frame_height = int(self.video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.frame_width = int(self.video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         
-        self.s_ymin = self.frame_width*self.sub_area[0]
-        self.s_ymax = self.frame_width*self.sub_area[1]
-        self.s_xmin = self.frame_height*self.sub_area[2]
-        self.s_xmax = self.frame_height*self.sub_area[3]
+        self.s_ymin = self.frame_height*self.sub_area[0]
+        self.s_ymax = self.frame_height*self.sub_area[1]
+        self.s_xmin = self.frame_width*self.sub_area[2]
+        self.s_xmax = self.frame_width*self.sub_area[3]
         # 用户未指定字幕区域时，默认字幕出现的区域
         self.default_subtitle_area = config.DEFAULT_SUBTITLE_AREA
         # 提取的视频帧储存目录
@@ -1032,7 +1032,7 @@ def dwonload_srt(srt_path):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
-    subtitle_area = (0.2, 0.9, 0, 1)
+    subtitle_area = (0.1, 0.9, 0.1, 0.9)
     for video in videos:
         video_path = download_video(video)
         # 新建字幕提取对象
