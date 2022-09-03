@@ -111,6 +111,7 @@ class SubtitleExtractor:
         # 打印识别语言与识别模式
         print(f"{config.interface_config['Main']['RecSubLang']}：{config.REC_CHAR_TYPE}")
         print(f"{config.interface_config['Main']['RecMode']}：{config.MODE_TYPE}")
+        print(config.DET_MODEL_PATH)
         # 如果使用GPU加速，则打印GPU加速提示
         if config.USE_GPU:
             print(config.interface_config['Main']['GPUSpeedUp'])
