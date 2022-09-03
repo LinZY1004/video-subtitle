@@ -1035,8 +1035,9 @@ if __name__ == '__main__':
     videos = get_videos("/content/videos.json")
     subtitle_area = (0, 1, 0, 1)
     for video in videos:
-        video_path = download_video(video)
-        # 新建字幕提取对象
-        se = SubtitleExtractor(video_path, subtitle_area)
-        # 开始提取字幕
-        se.run()
+        for material in video['materials']:
+            video_path = download_video(material)
+            # 新建字幕提取对象
+            se = SubtitleExtractor(video_path, subtitle_area)
+            # 开始提取字幕
+            se.run()
