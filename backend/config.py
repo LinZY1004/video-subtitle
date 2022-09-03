@@ -30,7 +30,7 @@ if not os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), '
         f.write('[DEFAULT]\n')
         f.write('Interface = 简体中文\n')
         f.write('Language = ch\n')
-        f.write('Mode = fast')
+        f.write('Mode = accurate')
 settings_config.read(MODE_CONFIG_PATH, encoding='utf-8')
 
 # 读取interface下的语言配置,e.g. ch.ini
@@ -113,11 +113,11 @@ if REC_CHAR_TYPE in ('ch', 'japan', 'korean', 'en', 'chinese_cht', 'EN_symbol', 
         MODEL_VERSION = 'V2'
         REC_MODEL_PATH = os.path.join(REC_MODEL_BASE, MODEL_VERSION, f'{REC_CHAR_TYPE}_rec')
     # 如果V2版本也没有大模型版本，则切换V3的fast版本
-    if not os.path.exists(REC_MODEL_PATH):
+    elif not os.path.exists(REC_MODEL_PATH):
         MODEL_VERSION = 'V3'
         REC_MODEL_PATH = os.path.join(REC_MODEL_BASE, MODEL_VERSION, f'{REC_CHAR_TYPE}_rec_fast')
     # 如果没有V3的fast版本，则切换V2的fast版本
-    if not os.path.exists(REC_MODEL_PATH):
+    elif not os.path.exists(REC_MODEL_PATH):
         MODEL_VERSION = 'V2'
         REC_MODEL_PATH = os.path.join(REC_MODEL_BASE, MODEL_VERSION, f'{REC_CHAR_TYPE}_rec_fast')
     # 定义文本检测模型
