@@ -1031,9 +1031,14 @@ def download_video(video):
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
+    import shutil
+    main_dir = '/content/'
+    materials_dir = '/content/materials/'
     multiprocessing.set_start_method("spawn")
     videos = get_videos("/content/videos.json")
     subtitle_area = (0, 1, 0, 1)
+    if os.path.exists(materials_dir)==False:
+        os.makedirs(materials_dir)
     for video in videos:
         for material in video['materials']:
             video_path = download_video(material)
@@ -1041,3 +1046,5 @@ if __name__ == '__main__':
             se = SubtitleExtractor(video_path, subtitle_area)
             # 开始提取字幕
             se.run()
+            shutil.move(main_dir+material['name']+".srt",materials_dir+material['name']+".srt")
+
