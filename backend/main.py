@@ -1040,11 +1040,12 @@ if __name__ == '__main__':
     if os.path.exists(materials_dir)==False:
         os.makedirs(materials_dir)
     for video in videos:
-        for material in video['materials']:
-            video_path = download_video(material)
-            # 新建字幕提取对象
-            se = SubtitleExtractor(video_path, subtitle_area)
-            # 开始提取字幕
-            se.run()
-            shutil.move(main_dir+material['name']+".srt",materials_dir+material['name']+".srt")
+        if video['OCR']:
+            for material in video['materials']:
+                video_path = download_video(material)
+                # 新建字幕提取对象
+                se = SubtitleExtractor(video_path, subtitle_area)
+                # 开始提取字幕
+                se.run()
+                shutil.move(main_dir+material['name']+".srt",materials_dir+material['name']+".srt")
 
