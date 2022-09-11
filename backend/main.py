@@ -1044,6 +1044,8 @@ if __name__ == '__main__':
             for material in video['materials']:
                 video_path = download_video(material)
                 # 新建字幕提取对象
+                if video_path ==None:
+                    continue
                 se = SubtitleExtractor(video_path, subtitle_area)
                 # 开始提取字幕
                 se.run()
