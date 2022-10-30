@@ -1042,6 +1042,8 @@ if __name__ == '__main__':
     for video in videos:
         if video['OCR']:
             for material in video['materials']:
+                if material['local']:
+                    continue
                 video_path = download_video(material)
                 # 新建字幕提取对象
                 if video_path ==None:
