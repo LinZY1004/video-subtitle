@@ -1052,8 +1052,8 @@ def dwonload_srt(srt_path):
 if __name__ == '__main__':
     import shutil
     main_dir = '/content/'
-    materials_dir = '/content/drive/materials/'
-    histroy_dir = '/content/drive/history/'
+    materials_dir = '/content/drive/MyDrive/materials/'
+    histroy_dir = '/content/drive/MyDrive/history/'
     if os.path.exists(materials_dir)==False:
         os.makedirs(materials_dir)
     if os.path.exists(histroy_dir)==False:
