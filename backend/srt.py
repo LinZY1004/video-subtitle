@@ -1086,7 +1086,7 @@ if __name__ == '__main__':
         srt_set.add(material['uri'])
         save_txt(srt_dir,srt_set)
         os.remove(video_path)
-    if os.path.exists("/material/")==False:
-        os.makedirs("/material/")
+    if os.path.exists("/materials/")==False:
+        os.makedirs("/materials/")
     for material in srt_list:
-        shutil.copy(materials_dir+material['uri']+".srt","/material/"+material['uri']+".srt")
+        shutil.copy(materials_dir+material['uri']+".srt","/materials/"+material['uri']+".srt")
