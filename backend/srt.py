@@ -1033,20 +1033,29 @@ def get_real_url(url):
             i-=1
             if i==0:
                 return None
+def wget_download(real_url,video_path):
+    i=3
+    while True:
+        try:
+            wget.download(real_url,video_path)
+            return True
+        except:
+            print("下载失败："+real_url)
+            i-=1
+            if i==0:
+                return False
 def download_video(video):
     video_path = "/content/"+video['uri']+".mp4"
     real_url = get_real_url(video['url'])
     if real_url!=None:
-        i=3
-        while True:
-            try:
-                wget.download(real_url,video_path)
-                return video_path
-            except:
-                print("下载失败："+real_url)
-                i-=1
-                if i==0:
-                    return None
+        sucess = wget_download(real_url,video_path)
+        if sucess:
+            return video_path
+    for url in video['url_list']:
+        sucess = wget_download(url,video_path)
+        if sucess:
+            return video_path
+    return None
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
