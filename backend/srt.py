@@ -39,8 +39,14 @@ import multiprocessing
 import time
 import json
 import wget
-
-
+download_task = []
+download_pool=ThreadPoolExecutor(max_workers=1)
+process_task = []
+process_pool=ThreadPoolExecutor(max_workers=1)
+main_dir = '/content/'
+materials_dir = '/content/drive/MyDrive/materials/'
+histroy_dir = '/content/drive/MyDrive/history/'
+subtitle_area_lin = (0, 1, 0, 1)
 class SubtitleDetect:
     """
     文本框检测类，用于检测视频帧中是否存在文本框
@@ -1044,49 +1050,52 @@ def wget_download(real_url,video_path):
             i-=1
             if i==0:
                 return False
-def download_video(video):
+def download_video(video,srt_set):
     video_path = "/content/"+video['uri']+".mp4"
     real_url = get_real_url(video['url'])
     if real_url!=None:
         sucess = wget_download(real_url,video_path)
-        if sucess:
-            return video_path
-    for url in video['url_list']:
-        sucess = wget_download(url,video_path)
-        if sucess:
-            return video_path
-    return None
+        if sucess==False:
+            for url in video['url_list']:
+                sucess = wget_download(url,video_path)
+                if sucess:
+                    break
+    if sucess:
+        print("添加处理任务："+video_path)
+        process_task.append(process_pool.submit(process_video,material,srt_set))
+def process_video(video_path,srt_set):
+    se = SubtitleExtractor(video_path, subtitle_area_lin)
+    # 开始提取字幕
+    se.run()
+    shutil.move(main_dir+material['uri']+".srt",materials_dir+material['uri']+".srt")
+    srt_set.add(material['uri'])
+    save_txt(srt_dir,srt_set)
+    os.remove(video_path)
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
     import shutil
-    main_dir = '/content/'
-    materials_dir = '/content/drive/MyDrive/materials/'
-    histroy_dir = '/content/drive/MyDrive/history/'
     if os.path.exists(materials_dir)==False:
         os.makedirs(materials_dir)
     if os.path.exists(histroy_dir)==False:
         os.makedirs(histroy_dir)
     multiprocessing.set_start_method("spawn")
     srt_list,file_name = get_srt_list("/content/")
-    subtitle_area = (0, 1, 0, 1)
     srt_dir = histroy_dir+file_name+".txt"
     srt_set = get_txt(srt_dir)
     for material in srt_list:
         if material['uri'] in srt_set:
             continue
-        video_path = download_video(material)
+        download_task.append(download_pool.submit(download_video,material,srt_set))
         # 新建字幕提取对象
-        if video_path ==None:
-            continue
-        se = SubtitleExtractor(video_path, subtitle_area)
-        # 开始提取字幕
-        se.run()
-        shutil.move(main_dir+material['uri']+".srt",materials_dir+material['uri']+".srt")
-        srt_set.add(material['uri'])
-        save_txt(srt_dir,srt_set)
-        os.remove(video_path)
+    print("等待下载任务全部完成......")
+    for future in as_completed(download_task):
+        pass
+    print("等待处理任务全部完成......")
+    for future in as_completed(process_task):
+        pass
     if os.path.exists("/materials/")==False:
         os.makedirs("/materials/")
     for material in srt_list:
-        shutil.copy(materials_dir+material['uri']+".srt","/materials/"+material['uri']+".srt")
+        if os.path.exists(materials_dir+material['uri']+".srt"):
+            shutil.copy(materials_dir+material['uri']+".srt","/materials/"+material['uri']+".srt")
