@@ -1092,6 +1092,7 @@ if __name__ == '__main__':
             continue
         download_task.append(download_pool.submit(download_video,material,srt_set,srt_dir))
         i+=1
+        print("填充%d"%i)
         if i >=5:
             print("填充完毕")
             time.sleep(20)
@@ -1100,8 +1101,8 @@ if __name__ == '__main__':
                 if i <= 1:
                     print("继续填充")
                     break
-    print("等待处理任务全部完成......")
-    for future in as_completed(process_task):
+    print("等待下载任务全部完成......")
+    for future in as_completed(download_task):
         pass
     print("等待处理任务全部完成......")
     for future in as_completed(process_task):
