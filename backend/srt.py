@@ -1087,17 +1087,21 @@ if __name__ == '__main__':
     srt_dir = histroy_dir+file_name+".txt"
     srt_set = get_txt(srt_dir)
     i=0
+    total = 0
     for material in srt_list:
         if material['uri'] in srt_set:
             continue
         download_task.append(download_pool.submit(download_video,material,srt_set,srt_dir))
         i+=1
+        total+=1
         print("填充%d"%i)
         if i >=5:
+            i=total
             print("填充完毕")
-            time.sleep(20)
+            time.sleep(10)
             for future in as_completed(process_task):
                 i-=1
+                print("完成%d"%i)
                 if i <= 1:
                     print("继续填充")
                     break
