@@ -1050,9 +1050,11 @@ def wget_download(real_url,video_path):
             i-=1
             if i==0:
                 return False
-def download_video(video,srt_set):
-    video_path = "/content/"+video['uri']+".mp4"
+def download_video(video,srt_set,srt_dir):
+    video_path = materials_dir+video['uri']+".mp4"
     real_url = get_real_url(video['url'])
+    if os.path.exists(video_path):
+        os.remove(video_path)
     if real_url!=None:
         sucess = wget_download(real_url,video_path)
         if sucess==False:
@@ -1062,15 +1064,16 @@ def download_video(video,srt_set):
                     break
     if sucess:
         print("添加处理任务："+video_path)
-        process_task.append(process_pool.submit(process_video,material,srt_set))
-def process_video(video_path,srt_set):
-    se = SubtitleExtractor(video_path, subtitle_area_lin)
-    # 开始提取字幕
-    se.run()
-    shutil.move(main_dir+material['uri']+".srt",materials_dir+material['uri']+".srt")
-    srt_set.add(material['uri'])
-    save_txt(srt_dir,srt_set)
-    os.remove(video_path)
+        process_task.append(process_pool.submit(process_video,video_path,srt_set,video['url'],srt_dir))
+def process_video(video_path,srt_set,uri,srt_dir):
+    try:
+        se = SubtitleExtractor(video_path, subtitle_area_lin)
+        se.run()
+        srt_set.add(uri)
+        save_txt(srt_dir,srt_set)
+        os.remove(video_path)
+    except:
+        traceback.print_exc()
 def dwonload_srt(srt_path):
     files.download(srt_path)
 if __name__ == '__main__':
@@ -1083,13 +1086,22 @@ if __name__ == '__main__':
     srt_list,file_name = get_srt_list("/content/")
     srt_dir = histroy_dir+file_name+".txt"
     srt_set = get_txt(srt_dir)
+    i=0
     for material in srt_list:
         if material['uri'] in srt_set:
             continue
-        download_task.append(download_pool.submit(download_video,material,srt_set))
-        # 新建字幕提取对象
-    print("等待下载任务全部完成......")
-    for future in as_completed(download_task):
+        download_task.append(download_pool.submit(download_video,material,srt_set,srt_dir))
+        i+=1
+        if i >=5:
+            print("填充完毕")
+            time.sleep(20)
+            for future in as_completed(process_task):
+                i-=1
+                if i <= 1:
+                    print("继续填充")
+                    break
+    print("等待处理任务全部完成......")
+    for future in as_completed(process_task):
         pass
     print("等待处理任务全部完成......")
     for future in as_completed(process_task):
