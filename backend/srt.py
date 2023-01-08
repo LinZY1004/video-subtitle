@@ -1089,7 +1089,8 @@ if __name__ == '__main__':
     i=0
     total = 0
     for material in srt_list:
-        if material['uri'] in srt_set:
+        if material['url'] in srt_set:
+            print(material['url']+"已经完成")
             continue
         download_task.append(download_pool.submit(download_video,material,srt_set,srt_dir))
         i+=1
